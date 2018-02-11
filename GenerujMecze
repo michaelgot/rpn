@@ -1,0 +1,56 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Rozgrywki_Meczowe
+{
+    class GenerujMecze
+    {
+        private DateTime dataRundaZimowa, dataRundaLetnia, data;
+        public GenerujMecze(DateTime rundaZimowa, DateTime rundaLetnia)
+        {
+            this.dataRundaZimowa = rundaZimowa;
+            this.dataRundaLetnia = rundaLetnia;
+        }
+        public DateTime[] GenerujDaty()
+        {
+            data = this.dataRundaZimowa.Date;
+            DateTime[] tablicaTerminarz = new DateTime[60];
+            bool przerwa = true;
+            int kontynuacjaPętli = 0;
+            while (przerwa)
+            {
+                for (int x = kontynuacjaPętli; x < tablicaTerminarz.Length;)
+                {
+                    tablicaTerminarz[x++] = data;
+                    data = data.AddDays(1);
+                    if (x == 29)
+                    {
+                        tablicaTerminarz[x] = data;
+                        data = this.dataRundaLetnia.Date;
+                        kontynuacjaPętli = 30;
+                        break;
+                    }
+                    else if (x == 59)
+                    {
+                        tablicaTerminarz[x] = data;
+                        przerwa = false;
+                        break;
+                    }
+                    tablicaTerminarz[x++] = data;
+                    data = data.AddDays(6);
+                }
+            }
+            return tablicaTerminarz;
+        }
+        public byte[] LosowoGenerujListęSędziów()
+        {
+            Random los = new Random(8);
+            byte[] tablica = new byte[8];
+            los.NextBytes(tablica);
+            return tablica;
+        }
+    }
+}
