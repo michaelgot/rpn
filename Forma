@@ -1,0 +1,77 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using FirebirdSql.Data.FirebirdClient;
+
+namespace Rozgrywki_Meczowe
+{
+    public partial class Form : System.Windows.Forms.Form
+    {
+        public Form()
+        {
+            InitializeComponent();
+        }
+
+        private void ButtonGenerujSezon_Click(object sender, EventArgs e)
+        {
+            GenerujTabliceRozgrywkowe generujRozgrywki = new GenerujTabliceRozgrywkowe();
+            string[] tablica = generujRozgrywki.LosowoGenerujKolejnośćPar();
+
+            GenerujMecze test = new GenerujMecze(dateTimePicker_RundaZimowa.Value, dateTimePicker_RundaLetnia.Value);
+            DateTime[] daty = test.GenerujDaty();
+
+            //Połączenie z bazą danych i selekcja granych meczy i ich wyświetlenie na liście.
+            string testScieżka = "User = SYSDBA;" +
+                "Password = masterkey;" +
+                "Database = E:\\rpn-bdf\\RPN.FDB;" +
+                "DataSource = localhost;" +
+                "Port = 3050;" +
+                "Dialect = 3;" +
+                "Charset = UTF8;" +
+                "Role =;" +
+                "Connection lifetime = 15;" +
+                "Pooling = true;" +
+                "MinPoolSize = 0;" +
+                "MaxPoolSize = 50;" +
+                "Packet Size = 8192;" +
+                "ServerType = 0;";
+            FbConnection testPołączenie = new FbConnection(testScieżka);
+            testPołączenie.Open();
+            FbCommand testKomenda = new FbCommand();
+            FbDataReader testOdczyt;
+            string[] testTablica = new string[240];
+            testKomenda.Connection = testPołączenie;
+            string testZapytanie1, testZapytanie2, przechowalnia;
+            byte licznikDat = 0;
+            for (int i = 0; i < tablica.Length; i++)
+            {
+                testZapytanie1 = "select z.nazwa from zespoly z where z.id_zespolu = " + tablica[i].Substring(0, 2);
+                testKomenda.CommandText = testZapytanie1;
+                testOdczyt = testKomenda.ExecuteReader();
+                testOdczyt.Read();
+                przechowalnia = testOdczyt.GetString(0);
+                testOdczyt.Close();
+                testZapytanie2 = "select z.nazwa from zespoly z where z.id_zespolu = " + tablica[i].Substring(3, 2);
+                testKomenda.CommandText = testZapytanie2;
+                testOdczyt = testKomenda.ExecuteReader();
+                testOdczyt.Read();
+                testTablica[i] = przechowalnia + " : " + testOdczyt.GetString(0);
+                testOdczyt.Close();
+                listBox_Wyświetl.Items.Add(testTablica[i]);
+
+                if (i > 3 && i % 4 == 0)
+                {
+                    listBox_Wyświetl.Items.Add(daty[++licznikDat]);
+                }
+                else listBox_Wyświetl.Items.Add(daty[licznikDat]);
+            }
+            testPołączenie.Close();
+        }
+    }
+}
