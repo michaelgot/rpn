@@ -1,0 +1,199 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Rozgrywki_Meczowe
+{
+    class GenerujTabliceRozgrywkowe
+    {
+        //public string[] LosowoGenerujKolejnośćPar()
+        //{
+        //    string[][] tablicaTablicSP = SelekcjaPar();
+        //    Random los = new Random();
+        //    int licznik = 0;
+        //    string[] tablicaZestawionychPar = new string[240];
+        //    int[] tablicaMeczyWKolejce = new int[8];
+        //    int wylosowana;
+        //    bool losowanie = false;
+        //    for (int i = 0; i < 2; i++)
+        //    {
+        //        for (int j = 0; j < tablicaTablicSP.Length; j++)
+        //        {
+        //            for (int k = 0; k < tablicaTablicSP[j].Length; k++)
+        //            {
+        //                while (losowanie == false)
+        //                {
+        //                    wylosowana = los.Next(1, 9);
+        //                    if (k == 0)
+        //                    {
+        //                        tablicaMeczyWKolejce[0] = wylosowana;
+        //                        losowanie = true;
+        //                    }
+        //                    else if (k > 0)
+        //                    {
+        //                        for (int l = 0; l <= k;)
+        //                        {
+        //                            if (tablicaMeczyWKolejce[l] == wylosowana) break;
+        //                            else if (l == k)
+        //                            {
+        //                                tablicaMeczyWKolejce[l] = wylosowana;
+        //                                l++;
+        //                                losowanie = true;
+        //                            }
+        //                            else l++;
+        //                        }
+        //                    }
+        //                }
+        //                losowanie = false;
+        //                tablicaZestawionychPar[licznik++] = tablicaTablicSP[j][tablicaMeczyWKolejce[k] - 1];
+        //            }
+        //            for (int l = 0; l < 8; l++) tablicaMeczyWKolejce[l] = 0;
+        //        }
+        //    }
+        //    return tablicaZestawionychPar;
+        //}
+
+        public string[] LosowoGenerujKolejnośćPar()
+        {
+            string[][] tablicaTablicSP = SelekcjaPar();
+            Random los = new Random();
+            string[] tablicaZestawionychPar = new string[240];
+            int[] tablicaTestowa = new int[8];
+            int[] tablicaMeczyWKolejce = new int[8];
+            int licznikMeczy = 0;
+            int licznikPar = 0;
+            int wylosowana;
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < tablicaTablicSP.Length; j++)
+                {
+                    int licznik = 7;
+                    int liczbaMeczyWKolejce = tablicaTablicSP[j].Length;
+                    for (int x = 0; x < liczbaMeczyWKolejce; x++) tablicaTestowa[x] = x;
+                    for (int k = 0; k < liczbaMeczyWKolejce; k++)
+                    {
+                        wylosowana = los.Next(licznik);
+                        tablicaMeczyWKolejce[licznikMeczy++] = tablicaTestowa[wylosowana];
+                        tablicaTestowa[wylosowana] = tablicaTestowa[liczbaMeczyWKolejce - 1];
+                        licznik--;
+                    }
+                    licznikMeczy = 0;
+                    for (int y = 0; y < tablicaMeczyWKolejce.Length; y++)
+                    {
+                        tablicaZestawionychPar[licznikPar++] = tablicaTablicSP[j][tablicaMeczyWKolejce[y]];
+                    }
+                }
+            }
+            return tablicaZestawionychPar;
+        } 
+
+        private int PrzypiszParyDoTablicy(string[][] tablicaTablic, int i, int licznik, string[] tablica, int j, int pętle)
+        {
+            for (int x = 0; x < pętle; x++)
+            {
+                tablicaTablic[i][licznik++] = tablica[j + x];
+            }
+            return licznik;
+        }
+
+        private string[][] SelekcjaPar()
+        {
+            string[] tablicaPar = UtwórzTablicęPar();
+            int licznikZestawianychPar = 0;
+            int licznikPoczątkaZakresu = 0;
+            int licznikKońcaZakresu = 16;
+            string[][] tablicaTablicSP = new string[15][];
+            for (int i = 0; i < tablicaTablicSP.Length; i++)
+            {
+                tablicaTablicSP[i] = new string[8];
+            }
+            for (int i = 0; i < tablicaTablicSP.Length; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    for (int j = licznikPoczątkaZakresu; j < licznikKońcaZakresu; j += 2)
+                    {
+                        licznikZestawianychPar = PrzypiszParyDoTablicy(tablicaTablicSP, i, licznikZestawianychPar, tablicaPar, j, 1);
+                    }
+                    licznikPoczątkaZakresu = licznikKońcaZakresu;
+                    licznikKońcaZakresu += 16;
+                }
+                else if (i == 1 || i == 5 || i == 9 || i == 13)
+                {
+                    for (int j = licznikPoczątkaZakresu; j < licznikKońcaZakresu; j += 4)
+                    {
+                        licznikZestawianychPar = PrzypiszParyDoTablicy(tablicaTablicSP, i, licznikZestawianychPar, tablicaPar, j, 2);
+                    }
+                    licznikPoczątkaZakresu = licznikKońcaZakresu;
+                    licznikKońcaZakresu += 16;
+                }
+                else if (i == 3 || i == 11)
+                {
+                    for (int j = licznikPoczątkaZakresu; j < licznikKońcaZakresu; j += 8)
+                    {
+                        licznikZestawianychPar = PrzypiszParyDoTablicy(tablicaTablicSP, i, licznikZestawianychPar, tablicaPar, j, 4);
+                    }
+                    licznikPoczątkaZakresu = licznikKońcaZakresu;
+                    licznikKońcaZakresu += 16;
+                }
+                else if (i == 7)
+                {
+                    for (int j = licznikPoczątkaZakresu; j < licznikKońcaZakresu; j += 16)
+                    {
+                        licznikZestawianychPar = PrzypiszParyDoTablicy(tablicaTablicSP, i, licznikZestawianychPar, tablicaPar, j, 8);
+                    }
+                    licznikPoczątkaZakresu = licznikKońcaZakresu;
+                    licznikKońcaZakresu += 16;
+                }
+                licznikZestawianychPar = 0;
+            }
+            return tablicaTablicSP;
+        }
+
+        private string[] UtwórzTablicęPar()
+        {
+            int gospodarze = 0;
+            int goście = 0;
+            int licznikPar = 0;
+            int licznikGości = 0;
+            int licznikDoSzesnastu = 1;
+            string[] tablicaPar = new string[240];
+            for (int j = 0; j < 15; j++)
+            {
+                for (int k = 0; k < 16; k++)
+                {
+                    licznikGości = k + j + 2;
+                    if (licznikGości > 16)
+                    {
+                        licznikGości = licznikDoSzesnastu++;
+                        gospodarze = k + 1;
+                        goście = licznikGości;
+                        if (gospodarze < 10 || goście < 10)
+                        {
+                            if (gospodarze < 10 && goście < 10) tablicaPar[licznikPar++] = " " + gospodarze + ": " + goście;
+                            else if (gospodarze < 10) tablicaPar[licznikPar++] = " " + gospodarze + ":" + goście;
+                            else tablicaPar[licznikPar++] = gospodarze + ": " + goście;
+                        }
+                        else tablicaPar[licznikPar++] = gospodarze + ":" + goście;
+                    }
+                    else
+                    {
+                        gospodarze = k + 1;
+                        goście = licznikGości;
+                        if (gospodarze < 10 || goście < 10)
+                        {
+                            if (gospodarze < 10 && goście < 10) tablicaPar[licznikPar++] = " " + gospodarze + ": " + goście;
+                            else if (gospodarze < 10) tablicaPar[licznikPar++] = " " + gospodarze + ":" + goście;
+                            else tablicaPar[licznikPar++] = gospodarze + ": " + goście;
+                        }
+                        else tablicaPar[licznikPar++] = gospodarze + ":" + goście;
+                    }
+                }
+                licznikDoSzesnastu = 1;
+            }
+            return tablicaPar;
+        }
+    }
+}
